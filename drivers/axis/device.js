@@ -86,24 +86,6 @@ class AxisDevice extends ZigBeeDevice {
 
 }
 
-// class AxisDevice extends Homey.Device {
-//     onAdded() {
-//         this.log('Device Added');
-//         this.getCapabilities().forEach(element => {
-//             this.log(element);
-//         });
-//     }
-//     onInit() {
-//         this.log('Device Initialized');
-//         this.getCapabilities().forEach(element => {
-//             this.log(element);
-//         });
-
-//     }
-
-// }
-
 
 
 module.exports = AxisDevice;
-//module.exports = AxisDevice;
