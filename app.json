@@ -28,20 +28,12 @@
         "homey:manager:ledring"
     ],
     "author": {
-        "email": "dpanet@yahoo.com",
+        "email": "dpanet@hotmail.com",
         "name": "Omar"
     },
-    "contributors": {
-        "developers": [
-            {
-                "name": "Alice the Wild",
-                "email": "alicewild@gmail.com"
-            }
-        ]
-    },
-    "contributing": {},
+
     "bugs": {
-        "url": "https://bitbucket.org/athom/com.athom.myapp/issues"
+        "url": "https://github.com/DPANET/AxisGear/issues"
     },
     "signals": {},
     "flow": {},
@@ -70,7 +62,7 @@
                 "learnmode": {
                     "image": "assets/icon.svg",
                     "instruction": {
-                        "en": "Press the Pair button for 3 seconds until the pair blink"                       
+                        "en": "Press the Pair button for 3 seconds until the pair blink green"                       
                     }
                 }
             },
