@@ -1,0 +1,60 @@
+{
+  "title": {
+    "en": "Volume muted",
+    "nl": "Gedempt volume"
+  },
+  "type": "boolean",
+  "getable": true,
+  "setable": true,
+  "uiComponent": "button",
+  "$flow": {
+    "actions": [{
+        "id": "volume_mute",
+        "title": {
+          "en": "Mute the volume",
+          "nl": "Demp het geluid"
+        }
+      },
+      {
+        "id": "volume_unmute",
+        "title": {
+          "en": "Unmute the volume",
+          "nl": "Demp het geluid niet meer"
+        }
+      }
+    ]
+  },
+  "$speechExamples": {
+    "en": ["Mute the volume of my amplifier"],
+    "nl": ["Demp het volume van mijn versterker"]
+  },
+  "$speech": {
+    "en": {
+      "element": {
+        "muteReg": {
+          "type": "regex",
+          "value": "(?:(unmute|(the\\s)?volume\\s(back\\s)?on)|mute|silence|shut\\sup)"
+        }
+      },
+      "group": {
+        "mute": {
+          "set": "muteReg",
+          "ordered": false,
+          "allowDisconnect": true,
+          "capturingGroup": true,
+          "devices": {
+            "capabilities": [
+              "volume_mute"
+            ]
+          }
+        }
+      }
+    },
+    "nl": {
+      "muteReg": {
+        "type": "regex",
+        "value": "(?:(weer\\saan|(het\\s)?volume\\s(aan|terug))|stil)"
+      }      
+    }
+  }
+}

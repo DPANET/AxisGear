@@ -1,0 +1,9 @@
+{
+  "title": {
+    "en": "Window Coverings Tilt Down"
+  },
+  "type": "boolean",
+  "getable": false,
+  "setable": true,
+  "uiComponent": "button"
+}

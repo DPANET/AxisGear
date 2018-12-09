@@ -1,0 +1,13 @@
+{
+  "title": {
+    "en": "Sensor",
+    "nl": "Sensor"
+  },
+  "description": {
+    "en": "Use this device class for sensors, e.g. a contact or motion sensor."
+  },
+  "$speechAlternatives": {
+    "en": [ "sensor", "sensors" ],
+    "nl": [ "sensor", "sensors", "sensoren" ]
+  }
+}

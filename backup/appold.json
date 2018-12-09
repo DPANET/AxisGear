@@ -1,0 +1,15 @@
+{
+  "name": "homey-app",
+  "version": "1.0.0",
+  "description": "HomeyApp",
+  "main": "app.js",
+  "author": {
+    "name": "Omar Bamatraf",
+    "email": "dpanet@yahoo.com"
+  },
+  "id": "com.athom.example",
+  "sdk": 2,
+  "dependencies": {
+    "athom-cli": "^2.1.56"
+  }
+}

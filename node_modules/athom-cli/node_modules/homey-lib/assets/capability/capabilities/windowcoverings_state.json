@@ -1,0 +1,137 @@
+{
+  "title": {
+    "en": "Window Coverings state"
+  },
+  "type": "enum",
+  "values": [
+    {
+      "id": "up",
+      "title": {
+        "en": "Up",
+        "nl": "Omhoog"
+      }
+    },
+    {
+      "id": "idle",
+      "title": {
+        "en": "Idle",
+        "nl": "Stil"
+      }
+    },
+    {
+      "id": "down",
+      "title": {
+        "en": "Down",
+        "nl": "Omlaag"
+      }
+    }
+  ],
+  "getable": true,
+  "setable": true,
+  "uiComponent": "ternary",
+  "$flow": {
+    "triggers": [
+      {
+        "id": "windowcoverings_state_changed",
+        "title": {
+          "en": "The state changed",
+          "nl": "De status is veranderd"
+        },
+        "args": [
+          {
+            "name": "state",
+            "type": "dropdown",
+            "values": "$values"
+          }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "windowcoverings_state_is",
+        "title": {
+          "en": "The state is !{{|not}}",
+          "nl": "De status is !{{|niet}}"
+        },
+        "args": [
+          {
+            "name": "state",
+            "type": "dropdown",
+            "values": "$values"
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "set_windowcoverings_state",
+        "title": {
+          "en": "Set state",
+          "nl": "Zet de status"
+        },
+        "args": [
+          {
+            "name": "state",
+            "type": "dropdown",
+            "values": "$values"
+          }
+        ]
+      }
+    ]
+  },
+  "$speechExamples": {
+    "en": ["Open the window coverings"],
+    "nl": ["Open de raamverduistering"]
+  },
+  "$speech": {
+    "en": {
+      "element": {
+        "windowCoverings": {
+          "type": "regex",
+          "value": "(window coverings|(window )?covers|(roller )?shades|solar screen|blinds|curtains|shutters|drapes)"
+        },
+        "up": {
+          "type": "regex",
+          "value": "(up|open|raise)"
+        },
+        "down": {
+          "type": "regex",
+          "value": "(down|close|draw|lower)"
+        },
+        "idle": {
+          "type": "regex",
+          "value": "(stop|idle)"
+        },
+        "percent": {
+          "type": "regex",
+          "value": "(?:to\\s)?(\\d+)\\spercent"
+        }
+      },
+      "group": {
+        "setWindowCoveringsPercentage": {
+          "set": "windowCoverings && percent",
+          "ordered": false,
+          "allowDisconnect": true,
+          "capturingGroup": true,
+          "devices": {
+            "class": "windowcoverings|curtain|blind|sunshade",
+            "capabilities": "windowcoverings_set|dim"
+          }
+        },
+        "setWindowCoveringsState": {
+          "set": "windowCoverings && windowCoveringsState",
+          "ordered": false,
+          "allowDisconnect": true,
+          "capturingGroup": true,
+          "devices": {
+            "class": "windowcoverings|curtain|blind|sunshade",
+            "capabilities": "windowcoverings_state|windowcoverings_closed|onoff"
+          }
+        },
+        "windowCoveringsState": {
+          "set": "up || idle || down"
+        }
+      }
+    }
+  }
+}
