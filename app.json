@@ -46,7 +46,8 @@
             "class": "windowcoverings",
             "capabilities": [
                 "onoff",
-                "dim"
+                "dim",
+                "measure_battery"
             ],
             "images": {
                 "large": "assets/images/large.png",
