@@ -72,8 +72,8 @@ class AxisDevice extends ZigBeeDevice {
             this.registerAttrReportListener(
                 'genPowerCfg', // Cluster
                 'batteryPercentageRemaining', // Attr
-                1, // Min report interval in seconds (must be greater than 1)
-                3600, // Max report interval in seconds (must be zero or greater than 60 and greater than min report interval)
+                3600, // Min report interval in seconds (must be greater than 1)
+                86400, // Max report interval in seconds (must be zero or greater than 60 and greater than min report interval)
                 0, // Report change value, if value changed more than this value send a report
                 this.onPowerCfgBatteryPercentageRemainingReport.bind(this)) // Callback with value
                 .then(() => {
