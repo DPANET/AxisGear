@@ -50,7 +50,7 @@ class AxisDevice extends ZigBeeDevice {
                     reportParser: value => (value / maxMoveLevel)
                 });
         } catch (err) {
-            this.error('failed to registe mapping registerCapability ', err);
+            this.error('failed to register mapping registerCapability ', err);
         }
         this.registerAttrReportListener(
             'genLevelCtrl', // Cluster

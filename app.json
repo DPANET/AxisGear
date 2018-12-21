@@ -15,12 +15,13 @@
         "en": [
             "blind",
             "curtain",
-            "shade"
+            "shade",
+            "zigbee"
         ]
     },
     "images": {
-        "large": "drivers/slide/assets/images/large.jpg",
-        "small": "drivers/slide/assets/images/small.jpg"
+        "large": "assets/images/large.jpg",
+        "small": "assets/images/small.jpg"
     },
     "permissions": [
         "homey:manager:speech-output",
@@ -50,8 +51,8 @@
                 "measure_battery"
             ],
             "images": {
-                "large": "assets/images/large.png",
-                "small": "assets/images/small.png"
+                "large": "drivers/axis/assets/images/large.png",
+                "small": "drivers/axis/assets/images/small.png"
             },
 
             "zigbee": {
@@ -61,9 +62,9 @@
                 "deviceId":512,
                 "profileId":260,
                 "learnmode": {
-                    "image": "assets/icon.svg",
+                    "image": "drivers/axis/assets/learn.svg",
                     "instruction": {
-                        "en": "Press the Pair button for 3 seconds until the pair blink green"                       
+                        "en": "Press the Pair button for 3 seconds until the pair light blink green"                       
                     }
                 }
             },
