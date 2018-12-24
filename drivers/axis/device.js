@@ -25,7 +25,8 @@ class AxisDevice extends ZigBeeDevice {
             this.registerCapability('measure_battery', 'genPowerCfg',
                 {
                     get: 'batteryPercentageRemaining',
-                    report: 'batteryPercentageRemaining'
+                    report: 'batteryPercentageRemaining',
+                    reportParser : value => Math.round(value/2)
 
                 });
 
@@ -72,8 +73,8 @@ class AxisDevice extends ZigBeeDevice {
             this.registerAttrReportListener(
                 'genPowerCfg', // Cluster
                 'batteryPercentageRemaining', // Attr
-                3600, // Min report interval in seconds (must be greater than 1)
-                86400, // Max report interval in seconds (must be zero or greater than 60 and greater than min report interval)
+                1, // Min report interval in seconds (must be greater than 1)
+                3600, // Max report interval in seconds (must be zero or greater than 60 and greater than min report interval)
                 0, // Report change value, if value changed more than this value send a report
                 this.onPowerCfgBatteryPercentageRemainingReport.bind(this)) // Callback with value
                 .then(() => {
@@ -109,13 +110,17 @@ class AxisDevice extends ZigBeeDevice {
         }
     }
     onPowerCfgBatteryPercentageRemainingReport(value) {
-        //this.log('onPowerCfgBatteryPercentageRemainingReport', value);
-        this.setCapabilityValue('measure_battery', value)
+        let batteryValue = Math.round(value/2);
+        //this.log('onPowerCfgBatteryPercentageRemainingReport ',batteryValue );
+        this.setCapabilityValue('measure_battery', batteryValue)
             .then(() => { })
             .catch(err => {
                 // Registering attr reporting failed
                 this.error('failed to set battery setCapabilityValue', err);
             });
+
+
+
     }
 
 }
