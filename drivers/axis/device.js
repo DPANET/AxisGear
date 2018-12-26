@@ -156,12 +156,12 @@ class AxisDevice extends ZigBeeDevice {
                         })
                         .catch(err => {
                             this.error('failed to toggle ', err);
-                            resolve(result);
+                            resolve(!result);
                         })
                 })
                 .catch(err => {
                     this.error('failed to set on/off setCapabilityValue based on action', err);
-                    resolve(result);
+                    resolve(!result);
                 });
 
 
