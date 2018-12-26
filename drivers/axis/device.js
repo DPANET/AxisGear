@@ -8,11 +8,11 @@ class AxisDevice extends ZigBeeDevice {
 
     onMeshInit() {
         // enable debugging
-       // this.enableDebug();
-       // this.printNode();
+        // this.enableDebug();
+        // this.printNode();
         // this.log('Zigbee Added');
 
-        //map onoff
+        //map onoff capability
         try {
             this.registerCapability('onoff', 'genOnOff', {
                 set: value => value ? 'on' : 'off',
@@ -21,16 +21,16 @@ class AxisDevice extends ZigBeeDevice {
                 reportParser: value => value === 1
             })
 
-
+            //map battery capability        
             this.registerCapability('measure_battery', 'genPowerCfg',
                 {
                     get: 'batteryPercentageRemaining',
                     report: 'batteryPercentageRemaining',
-                    reportParser : value => Math.round(value/2)
+                    reportParser: value => Math.round(value / 2)
 
                 });
 
-            //map dim        
+            //map dim capability        
             this.registerCapability('dim', 'genLevelCtrl',
                 {
                     get: 'currentLevel',
@@ -86,13 +86,34 @@ class AxisDevice extends ZigBeeDevice {
                     this.error('failed to register attr report listener', err);
                 });
         }
+        // Register toggle curtain flow card
+        try {
+            let toggleBlindAction = new Homey.FlowCardAction('toggle_blind_action');
+            toggleBlindAction
+                .register()
+                .registerRunListener((args, state) => {
+                  return  this.toggleBlind(args.my_device)
+                        .then(result => {
+                           return result;
+                        })
+                        .catch(err => {
+                            this.error('failed to toggle blind', err);
+                               return  false;
+                        }
+                        );
+                       
+                });
+        } catch (err) {
+            this.error('failed to register toggle action ', err);
+        }
 
     }
 
     onControlLevelChangeReport(value) {
+        let level = (value/maxMoveLevel);
         //this.log(value);
-        if (this.getCapabilityValue('dim') != (value / maxMoveLevel))
-            this.setCapabilityValue('dim', value / maxMoveLevel)
+        if (this.getCapabilityValue('dim') !== level)
+            this.setCapabilityValue('dim', level)
                 .then(() => { })
                 .catch(err => {
                     // Registering attr reporting failed
@@ -100,8 +121,8 @@ class AxisDevice extends ZigBeeDevice {
                 });
 
         // update onOff capability
-        if (this.getCapabilityValue('onoff') !== (value / maxMoveLevel) > 0) {
-            this.setCapabilityValue('onoff', (value / maxMoveLevel) > 0)
+        if (this.getCapabilityValue('onoff') !== (level) > 0) {
+            this.setCapabilityValue('onoff', (level) > 0)
                 .then(() => { })
                 .catch(err => {
                     // Registering attr reporting failed
@@ -110,7 +131,7 @@ class AxisDevice extends ZigBeeDevice {
         }
     }
     onPowerCfgBatteryPercentageRemainingReport(value) {
-        let batteryValue = Math.round(value/2);
+        let batteryValue = Math.round(value / 2);
         //this.log('onPowerCfgBatteryPercentageRemainingReport ',batteryValue );
         this.setCapabilityValue('measure_battery', batteryValue)
             .then(() => { })
@@ -118,9 +139,33 @@ class AxisDevice extends ZigBeeDevice {
                 // Registering attr reporting failed
                 this.error('failed to set battery setCapabilityValue', err);
             });
+    }
+    toggleBlind(device) {
+
+        let state = !device.getCapabilityValue('onoff');
+        // this.log(state);
+        let result = true;
+
+        return new Promise((resolve, reject) => {
+            device.node.endpoints[0].clusters['genOnOff'].do('toggle', {})
+                .then(() => {
+                    this.setCapabilityValue('onoff', state)
+                        .then(() => {
+                            // this.log('success set capablities');
+                            resolve(result);
+                        })
+                        .catch(err => {
+                            this.error('failed to toggle ', err);
+                            resolve(result);
+                        })
+                })
+                .catch(err => {
+                    this.error('failed to set on/off setCapabilityValue based on action', err);
+                    resolve(result);
+                });
 
 
-
+        });
     }
 
 }

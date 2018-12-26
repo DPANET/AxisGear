@@ -1,6 +1,6 @@
 {
     "id": "com.helloaxis.axisapp",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "compatibility": "1.x >=1.5.0",
     "sdk": 2,
     "brandColor": "#FF0000",
@@ -25,24 +25,37 @@
     },
     "permissions": [
         "homey:manager:speech-output",
-        
         "homey:manager:ledring"
     ],
     "author": {
         "email": "dpanet@hotmail.com",
         "name": "Omar"
     },
-
     "bugs": {
         "url": "https://github.com/DPANET/AxisGear/issues"
     },
-    "signals": {},
-    "flow": {},
+    "flow": {
+        "actions": [
+            {
+                "id": "toggle_blind_action",
+                "title": {
+                    "en": "Toggle curtain on or off "
+                },
+                "args": [
+                    {
+                        "type": "device",
+                        "name": "my_device",
+                        "filter": "driver_id=axis"
+                    }
+                ]
+            }
+        ]
+    },
     "drivers": [
         {
             "id": "axis",
             "name": {
-                "en":"Gear"
+                "en": "Gear"
             },
             "class": "windowcoverings",
             "capabilities": [
@@ -54,35 +67,69 @@
                 "large": "drivers/axis/assets/images/large.png",
                 "small": "drivers/axis/assets/images/small.png"
             },
-
-            "zigbee": {
-                "manufacturerName": "AXIS",
-                "manufacturerId":"AXIS",
-                "productId": "Gear",
-                "deviceId":512,
-                "profileId":260,
-                "learnmode": {
-                    "image": "drivers/axis/assets/learn.svg",
-                    "instruction": {
-                        "en": "Press the Pair button for 3 seconds until the pair light blink green"                       
+            "capabilitiesOptions": {
+                "onoff": {
+                    "title": {
+                        "en": "Curtain open"
+                    }
+                },
+                "dim": {
+                    "title": {
+                        "en": "Open level"
                     }
                 }
             },
-            "pair": 
-                [
+            "mobile": {
+                "components": [
                     {
-                        "id": "list_devices",
-                        "template": "list_devices",
-                        "navigation": {
-                            "next": "add_devices"
+                        "id": "icon",
+                        "capabilities": [
+                            "onoff"
+                        ]
+                    },
+                    {
+                        "id": "slider",
+                        "capabilities": [
+                            "dim"
+                        ],
+                        "options": {
+                            "showTitle": true
                         }
                     },
                     {
-                        "id": "add_devices",
-                        "template": "add_devices"
+                        "id": "battery",
+                        "capabilities": [
+                            "measure_battery"
+                        ]
                     }
-              ]
-            
+                ]
+            },
+            "zigbee": {
+                "manufacturerName": "AXIS",
+                "manufacturerId": "AXIS",
+                "productId": "Gear",
+                "deviceId": 512,
+                "profileId": 260,
+                "learnmode": {
+                    "image": "drivers/axis/assets/learn.svg",
+                    "instruction": {
+                        "en": "Press the Pair button for 3 seconds until the pair light blink purple"
+                    }
+                }
+            },
+            "pair": [
+                {
+                    "id": "list_devices",
+                    "template": "list_devices",
+                    "navigation": {
+                        "next": "add_devices"
+                    }
+                },
+                {
+                    "id": "add_devices",
+                    "template": "add_devices"
+                }
+            ]
         }
     ]
 }
