@@ -4,12 +4,14 @@
 
 This app adds support for the Zigbee Smart Home devices made by [Axis Gear](https://www.helloaxis.com/).  
 
-Note: as of current firmware, Battery reporting is different when connected to AD/DC power, full battery will be reported @ 33%. 
+Note: as of current firmware, battery reporting is different when connected to AD/DC power, full battery will be reported @ 33%. 
 
 ## Supported Languages:
 * English
 
 ## Change Log:
+### v 1.1.0
+* Added toggle curtain on or off flow card
 ### v 1.0.1
 * Fixed battery reporting, AC/DC will be reported at full 33%, in case of solar 100%.
 ### v 1.0.0
