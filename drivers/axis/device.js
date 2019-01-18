@@ -87,7 +87,6 @@ class AxisDevice extends ZigBeeDevice {
                 });
         }
         // Register toggle curtain flow card
-        try {
             let toggleBlindAction = new Homey.FlowCardAction('toggle_blind_action');
             toggleBlindAction
                 .register()
@@ -103,9 +102,7 @@ class AxisDevice extends ZigBeeDevice {
                         );
                        
                 });
-        } catch (err) {
-            this.error('failed to register toggle action ', err);
-        }
+
 
     }
 

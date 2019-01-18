@@ -1,6 +1,6 @@
 {
   "name": "axis-app",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "HomeyApp",
   "main": "app.js",
   "author": {
@@ -10,7 +10,7 @@
   "id": "com.athom.example",
   "sdk": 2,
   "dependencies": {
-    "athom-cli": "^2.1.63",
-    "homey-meshdriver": "^1.2.28"
+    "athom-cli": "^2.1.66",
+    "homey-meshdriver": "^1.2.29"
   }
 }
