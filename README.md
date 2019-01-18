@@ -10,6 +10,8 @@ Note: as of current firmware, battery reporting is different when connected to A
 * English
 
 ## Change Log:
+### v 1.2.0
+* Support for Homey 2.0
 ### v 1.1.0
 * Added toggle curtain on or off flow card
 ### v 1.0.1
