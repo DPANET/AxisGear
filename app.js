@@ -1,6 +1,7 @@
 'use strict';
 
 const Homey = require('homey');
+
 class AxisApp extends Homey.App {
 
     onInit() {
