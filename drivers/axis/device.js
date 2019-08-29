@@ -2,24 +2,48 @@
 
 const Homey = require('homey');
 const ZigBeeDevice = require('homey-meshdriver').ZigBeeDevice;
-const maxMoveLevel = 255;
+const maxMoveLevel = 254;
 const minMoveLevel = 0;
 class AxisDevice extends ZigBeeDevice {
 
     onMeshInit() {
         // enable debugging
-        // this.enableDebug();
-        // this.printNode();
+         this.enableDebug();
+      //   this.printNode();
         // this.log('Zigbee Added');
 
         //map onoff capability
         try {
-            this.registerCapability('onoff', 'genOnOff', {
-                set: value => value ? 'on' : 'off',
-                setParser: () => ({}),
-                get: 'onOff',
-                reportParser: value => value === 1
-            })
+            // this.registerCapability('onoff', 'genOnOff', {
+            //     set: value => value ? 'on' : 'off',
+            //     setParser: () => ({}),
+            //     get: 'onOff',
+            //     getOpts:{
+            //         getOnStart:true,
+            //         getOnOnline:true
+            //     },
+            //     reportParser: value => value === 1
+            // })
+           // this.registerCapability('onoff', 'genOnOff');
+           this.registerCapability('onoff', 'genLevelCtrl',
+           {
+               get: 'currentLevel',
+             // report: 'currentLevel',
+               set: 'moveToLevel',
+               getOpts:
+               {
+                   getOnStart: true,
+                   getOnOnline: true,
+               },
+               setParser: value => (
+                   {
+                       level: value* maxMoveLevel,
+                       transtime: this.getSetting('transtime')
+                   }
+               ),
+
+               reportParser: value => value/maxMoveLevel
+           });
 
             //map battery capability        
             this.registerCapability('measure_battery', 'genPowerCfg',
@@ -34,7 +58,7 @@ class AxisDevice extends ZigBeeDevice {
             this.registerCapability('dim', 'genLevelCtrl',
                 {
                     get: 'currentLevel',
-                    report: 'currentLevel',
+                   // report: 'currentLevel',
                     set: 'moveToLevel',
                     getOpts:
                     {
@@ -53,6 +77,7 @@ class AxisDevice extends ZigBeeDevice {
         } catch (err) {
             this.error('failed to register mapping registerCapability ', err);
         }
+
         this.registerAttrReportListener(
             'genLevelCtrl', // Cluster
             'currentLevel', // Attr
@@ -105,27 +130,48 @@ class AxisDevice extends ZigBeeDevice {
 
 
     }
+async OnPowerChangeReport(value)
+{
+    this.log("Current On/Off:"+ this.getCapabilityValue('onoff'));
+    try
+    {
+        await this.setCapabilityValue('onoff',value);
+    }
+    catch(err)
+    {
+        this.error('failed to set Onoff setCapabilityValue', err);
 
-    onControlLevelChangeReport(value) {
+    }
+}
+  async  onControlLevelChangeReport(value) {
         let level = (value/maxMoveLevel);
-        //this.log(value);
-        if (this.getCapabilityValue('dim') !== level)
-            this.setCapabilityValue('dim', level)
-                .then(() => { })
-                .catch(err => {
-                    // Registering attr reporting failed
-                    this.error('failed to set dim setCapabilityValue', err);
-                });
+        this.log("Sent Value:"+ level);
+        this.log("Current Dim:"+this.getCapabilityValue('dim'));
+     //   this.log("Current On/Off:"+ this.getCapabilityValue('onoff'));
+     //   if (this.getCapabilityValue('dim') !== level)
+     try{
+        //if (this.getCapabilityValue('dim') !== level)
+            await this.setCapabilityValue('dim', level);
+                // .then(() => { })
+                // .catch(err => {
+                //     // Registering attr reporting failed
+                //     this.error('failed to set dim setCapabilityValue', err);
+                // });
 
         // update onOff capability
-        if (this.getCapabilityValue('onoff') !== (level) > 0) {
-            this.setCapabilityValue('onoff', (level) > 0)
-                .then(() => { })
-                .catch(err => {
-                    // Registering attr reporting failed
-                    this.error('failed to set on/off setCapabilityValue', err);
-                });
-        }
+      //  if (this.getCapabilityValue('onoff') !== (level) > 0) 
+          await this.setCapabilityValue('onoff', (level) > 0);
+                // .then(() => { })
+                // .catch(err => {
+                //     // Registering attr reporting failed
+                //     this.error('failed to set on/off setCapabilityValue', err);
+                // });
+    }
+    catch(err)
+    {
+        this.error('failed to set control change setCapabilityValue', err);
+
+    }
     }
     onPowerCfgBatteryPercentageRemainingReport(value) {
         let batteryValue = Math.round(value / 2);
