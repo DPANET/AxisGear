@@ -1,6 +1,6 @@
 {
-  "name": "axis-app",
-  "version": "1.3.0",
+  "name": "@dpanet/axis-app",
+  "version": "1.4.0",
   "description": "HomeyApp",
   "main": "app.js",
   "author": {
@@ -11,5 +11,12 @@
   "sdk": 2,
   "dependencies": {
     "homey-meshdriver": "^1.2.34"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DPANET/AxisGear.git"
+  },
+  "devDependencies": {
+    "@types/node": "^12.7.2"
   }
 }
