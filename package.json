@@ -10,7 +10,6 @@
   "id": "com.athom.example",
   "sdk": 2,
   "dependencies": {
-    "athom-cli": "^2.1.99",
     "homey-meshdriver": "^1.2.34"
   }
 }
