@@ -11,7 +11,8 @@ Note: as of current firmware, battery reporting is different when connected to A
 
 ## Change Log:
 ### v 1.3.0
-* Support for new Axis firmware updates
+* Added support for new Axis firmware update
+* optimized app size
 ### v 1.2.0
 * Support for Homey 2.0
 ### v 1.1.0
