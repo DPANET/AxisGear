@@ -8,7 +8,7 @@
     "email": "dpanet@homey.com"
   },
   "id": "com.athom.example",
-  "sdk": 2,
+  "sdk": 3,
   "dependencies": {
     "homey-zigbeedriver": "^1.1.0"
   },
