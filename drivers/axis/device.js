@@ -1,9 +1,9 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-const Homey = require("homey");
 const { ZigBeeDevice } = require('homey-zigbeedriver');
 const { ZCLNode, CLUSTER, BoundCluster } = require('zigbee-clusters');
 const LevelControlBoundCluster = require('../../lib/LevelControlBoundCluster');
+const OnOffBoundCluster = require("../../lib/OnOffBoundCluster");
 const maxMoveLevel = 254;
 const minMoveLevel = 0;
 class AxisDevice extends ZigBeeDevice {
@@ -15,30 +15,75 @@ class AxisDevice extends ZigBeeDevice {
         this.log("I'm being added.......");
         //map onoff capability
         try {
-            this.registerCapability('onoff', CLUSTER.LEVEL_CONTROL, {
-                get: 'currentLevel',
-                // report: 'currentLevel',
-                set: 'moveToLevel',
+            // this.registerCapability('onoff',CLUSTER.LEVEL_CONTROL,
+            //     {
+            //         get: 'currentLevel',
+            //         // report: 'currentLevel',
+            //         set: 'moveToLevel',
+            //         getOpts:
+            //         {
+            //             getOnStart: true,
+            //             getOnOnline: true,
+            //         },
+            //         report:'currentLevel',
+            //         setParser: (value:any) => (
+            //             {
+            //                 level: value * maxMoveLevel,
+            //                 transtime: this.getSetting('transtime')
+            //             }
+            //         ),
+            //         reportParser: (value:any) => value / maxMoveLevel
+            //     });
+            this.registerCapability('onoff', CLUSTER.ON_OFF, {
+                // This is often just a string, but can be a function as well
+                set: (value) => (value ? 'setOn' : 'setOff'),
+                get: 'onOff',
+                report: 'onOff',
+                setParser: (setValue) => setValue ? 'setOn' : 'setOff',
+                reportParser: (report) => {
+                    if (report && report.onOff === true)
+                        return true;
+                    return false;
+                },
                 getOpts: {
                     getOnStart: true,
                     getOnOnline: true,
                 },
-                report: 'currentLevel',
-                setParser: (value) => ({
-                    level: value * maxMoveLevel,
-                    transtime: this.getSetting('transtime')
-                }),
-                reportParser: (value) => value / maxMoveLevel
+                reportOpts: {
+                    configureAttributeReporting: {
+                        minInterval: 0,
+                        maxInterval: 3600,
+                        minChange: 0,
+                    }
+                }
             });
-            this.log("On/Off Capability is added.....");
-            //map battery capability        
-            this.registerCapability('measure_battery', CLUSTER.POWER_CONFIGURATION, {
-                get: 'batteryPercentageRemaining',
-                report: 'batteryPercentageRemaining',
-                reportParser: (value) => Math.round(value / 2),
-            });
-            this.log("Battery Capability is added.....");
-            //map dim capability        
+            // this.registerCapability('onoff', CLUSTER.ON_OFF);
+            // {
+            //     get: 'currentLevel',
+            //     // report: 'currentLevel',
+            //     set: 'moveToLevel',
+            //     getOpts:
+            //     {
+            //         getOnStart: true,
+            //         getOnOnline: true,
+            //     },
+            //     report:'currentLevel',
+            //     setParser:(setValue:any)=> setValue ?  setValue : 0,
+            //     // setParser: (value:any)=>({
+            //     //     level: value * maxMoveLevel,
+            //     //     transtime: value
+            //     // }),
+            //     reportParser: (value:any) => value ?  true: false,
+            //     reportOpts: {
+            //         configureAttributeReporting: {
+            //           minInterval: 0, // No minimum reporting interval
+            //           maxInterval: 3600, // Maximally every ~16 hours
+            //           minChange: 0, // Report when value changed by 0
+            //         }
+            //         }
+            //     }
+            // );
+            // This maps the `dim` capability to the "levelControl" cluster
             this.registerCapability('dim', CLUSTER.LEVEL_CONTROL, {
                 get: 'currentLevel',
                 // report: 'currentLevel',
@@ -48,69 +93,113 @@ class AxisDevice extends ZigBeeDevice {
                     getOnOnline: true,
                 },
                 report: 'currentLevel',
-                setParser: (value) => ({
-                    level: value * maxMoveLevel,
-                    transtime: this.getSetting('transtime')
-                }),
-                reportParser: (value) => (value / maxMoveLevel)
+                // setParser: (value:any)=>({
+                //     level: value * maxMoveLevel,
+                //     transtime: value
+                // }),
+                reportParser: (value) => value / maxMoveLevel,
+                reportOpts: {
+                    configureAttributeReporting: {
+                        minInterval: 0,
+                        maxInterval: 3600,
+                        minChange: 0,
+                    }
+                }
             });
+            this.log("On/Off Capability is added.....");
+            //map battery capability        
+            // this.registerCapability('measure_battery',CLUSTER.POWER_CONFIGURATION,
+            //     {
+            //         get: 'batteryPercentageRemaining',
+            //         report: 'batteryPercentageRemaining',
+            //         reportParser: (value:any) => Math.round(value / 2),
+            //     });
+            //     this.log("Battery Capability is added.....")
+            //map dim capability        
+            //     this.registerCapability('dim', CLUSTER.LEVEL_CONTROL,
+            //         {
+            //             get: 'currentLevel',
+            //             // report: 'currentLevel',
+            //             set: 'moveToLevel',
+            //             getOpts:
+            //             {
+            //                 getOnStart: true,
+            //                 getOnOnline: true,
+            //             },
+            //             report:'currentLevel',
+            //             setParser: (value:any) => (
+            //                 {
+            //                     level: value * maxMoveLevel,
+            //                     transtime: this.getSetting('transtime')
+            //                 }
+            //             ),
+            //             reportParser: (value:any) => (value / maxMoveLevel)
+            //         });
+            // } catch (err) {
+            //     this.error('failed to register mapping registerCapability ', err);
+            //}
+            this.log("Dim Capability is added.....");
+            // this.registerAttrReportListener(
+            //     'genLevelCtrl', // Cluster
+            //     'currentLevel', // Attr
+            //     1, // Min report interval in seconds (must be greater than 1)
+            //     3600, // Max report interval in seconds (must be zero or greater than 60 and greater than min report interval)
+            //     0, // Report change value, if value changed more than this value send a report
+            //     this.onControlLevelChangeReport.bind(this)) // Callback with value
+            //     .then(() => {
+            //         // Registering attr reporting succeeded
+            //         this.log('registered attr report listener');
+            //     })
+            //     .catch((err:Error) => {
+            //         // Registering attr reporting failed
+            //         this.error('failed to register attr report listener', err);
+            //     });
+            //    await this.configureAttributeReporting([
+            //         {
+            //             cluster: CLUSTER.LEVEL_CONTROL,
+            //             attributeName:'currentLevel',
+            //             minInterval: 1,
+            //             maxInterval: 3600,
+            //             minChange:0
+            //         }]);
+            zclNode.endpoints[1].bind(CLUSTER.ON_OFF.NAME, new OnOffBoundCluster({
+                setOn: (value) => { this.log("i'm running really fast....."); },
+                setOff: (value) => { this.log("i'm running really fast....."); }
+            }));
+            zclNode.endpoints[1].bind(CLUSTER.LEVEL_CONTROL.NAME, new LevelControlBoundCluster({
+                onMove: (value) => { this.log("i'm running really fast....."); },
+                moveWithOnOff: this.onControlLevelChangeReport.bind(this),
+                stepWithOnOff: this.onControlLevelChangeReport.bind(this),
+                step: this.onControlLevelChangeReport.bind(this)
+            }));
+            // if (this.hasCapability('measure_battery')) {
+            //     this.registerAttrReportListener(
+            //         'genPowerCfg', // Cluster
+            //         'batteryPercentageRemaining', // Attr
+            //         1, // Min report interval in seconds (must be greater than 1)
+            //         3600, // Max report interval in seconds (must be zero or greater than 60 and greater than min report interval)
+            //         0, // Report change value, if value changed more than this value send a report
+            //         this.onPowerCfgBatteryPercentageRemainingReport.bind(this),0) // Callback with value
+            //         .then(() => {
+            //             // Registering attr reporting succeeded
+            //             this.log('registered attr report listener');
+            //         })
+            //         .catch((err:Error) => {
+            //             // Registering attr reporting failed
+            //             this.error('failed to register attr report listener', err);
+            //         });
+            // }
+            //initialize Homey Events
+            // Register toggle curtain flow card
+            this.initEvents();
         }
         catch (err) {
-            this.error('failed to register mapping registerCapability ', err);
+            this.log(err);
         }
-        this.log("Dim Capability is added.....");
-        // this.registerAttrReportListener(
-        //     'genLevelCtrl', // Cluster
-        //     'currentLevel', // Attr
-        //     1, // Min report interval in seconds (must be greater than 1)
-        //     3600, // Max report interval in seconds (must be zero or greater than 60 and greater than min report interval)
-        //     0, // Report change value, if value changed more than this value send a report
-        //     this.onControlLevelChangeReport.bind(this)) // Callback with value
-        //     .then(() => {
-        //         // Registering attr reporting succeeded
-        //         this.log('registered attr report listener');
-        //     })
-        //     .catch((err:Error) => {
-        //         // Registering attr reporting failed
-        //         this.error('failed to register attr report listener', err);
-        //     });
-        await this.configureAttributeReporting([
-            {
-                cluster: CLUSTER.LEVEL_CONTROL,
-                attributeName: 'currentLevel',
-                minInterval: 1,
-                maxInterval: 3600,
-                minChange: 0
-            }
-        ]);
-        zclNode.endpoints[1].bind(CLUSTER.LEVEL_CONTROL.NAME, new LevelControlBoundCluster({
-            onMove: this.onControlLevelChangeReport.bind(this),
-        }));
-        // if (this.hasCapability('measure_battery')) {
-        //     this.registerAttrReportListener(
-        //         'genPowerCfg', // Cluster
-        //         'batteryPercentageRemaining', // Attr
-        //         1, // Min report interval in seconds (must be greater than 1)
-        //         3600, // Max report interval in seconds (must be zero or greater than 60 and greater than min report interval)
-        //         0, // Report change value, if value changed more than this value send a report
-        //         this.onPowerCfgBatteryPercentageRemainingReport.bind(this),0) // Callback with value
-        //         .then(() => {
-        //             // Registering attr reporting succeeded
-        //             this.log('registered attr report listener');
-        //         })
-        //         .catch((err:Error) => {
-        //             // Registering attr reporting failed
-        //             this.error('failed to register attr report listener', err);
-        //         });
-        // }
-        //initialize Homey Events
-        // Register toggle curtain flow card
-        this.initEvents();
     }
     initEvents() {
-        let toggleBlindAction = new Homey.FlowCardAction('toggle_blind_action');
+        let toggleBlindAction = this.homey.flow.getActionCard('toggle_blind_action');
         toggleBlindAction
-            .register()
             .registerRunListener((args, state) => {
             return this.toggleBlind(args.my_device)
                 .then((result) => {
@@ -133,6 +222,7 @@ class AxisDevice extends ZigBeeDevice {
     }
     async onControlLevelChangeReport(value) {
         let level = (value / maxMoveLevel);
+        this.log("i'm running");
         this.log("Sent Value:" + level);
         this.log("Current Dim:" + this.getCapabilityValue('dim'));
         //   this.log("Current On/Off:"+ this.getCapabilityValue('onoff'));
