@@ -1,6 +1,5 @@
 'use strict';
 
-import Homey = require('homey');
 const { ZigBeeDevice } = require('homey-zigbeedriver');
 const { ZCLNode,CLUSTER,BoundCluster} = require('zigbee-clusters');
 const LevelControlBoundCluster = require('../../lib/LevelControlBoundCluster');
@@ -50,12 +49,16 @@ class AxisDevice extends ZigBeeDevice {
                   {
                       getOnStart: true,
                       getOnOnline: true,
+                      pollInterval: 60000
+
                   },
                   reportOpts: {
                     configureAttributeReporting: {
-                      minInterval: 0, // No minimum reporting interval
-                      maxInterval: 3600, // Maximally every ~16 hours
-                      minChange: 0, // Report when value changed by 0
+                        attributeName:"onOff",
+                        minInterval: 0, // No minimum reporting interval
+                        maxInterval: 3600, // Maximally every ~16 hours
+                        minChange: 0, // Report when value changed by 0,
+                        endpointId:1
                     }
                     }
             }
@@ -96,6 +99,7 @@ class AxisDevice extends ZigBeeDevice {
                 {
                     getOnStart: true,
                     getOnOnline: true,
+                    pollInterval: 60000
                 },
                 report:'currentLevel',
                 // setParser: (value:any)=>({
@@ -105,9 +109,11 @@ class AxisDevice extends ZigBeeDevice {
                 reportParser: (value:any) => value / maxMoveLevel,
                 reportOpts: {
                     configureAttributeReporting: {
+                      attributeName:"currentLevel",
                       minInterval: 0, // No minimum reporting interval
                       maxInterval: 3600, // Maximally every ~16 hours
-                      minChange: 0, // Report when value changed by 0
+                      minChange: 0, // Report when value changed by 0,
+                      endpointId:1
                     }
                     }
                 }
@@ -173,14 +179,31 @@ class AxisDevice extends ZigBeeDevice {
     //             maxInterval: 3600,
     //             minChange:0
     //         }]);
-
+    await this.configureAttributeReporting([
+        {
+            cluster: CLUSTER.LEVEL_CONTROL,
+            attributeName:"currentLevel",
+            minInterval: 0, // No minimum reporting interval
+            maxInterval: 3600, // Maximally every ~16 hours
+            minChange: 0, // Report when value changed by 0,
+            endpointId:1
+        },
+        {
+        cluster: CLUSTER.ON_OFF,
+        attributeName:"onOff",
+        minInterval: 0, // No minimum reporting interval
+        maxInterval: 3600, // Maximally every ~16 hours
+        minChange: 0, // Report when value changed by 0,
+        endpointId:1
+        }
+      ]);
     zclNode.endpoints[1].bind(CLUSTER.ON_OFF.NAME, new OnOffBoundCluster({
-        setOn: (value:any)=>{this.log("i'm running really fast.....")},
-        setOff:(value:any)=>{this.log("i'm running really fast.....")}
+        setOn: this.onControlLevelChangeReport.bind(this),
+        setOff:this.onControlLevelChangeReport.bind(this)
 
       }));
             zclNode.endpoints[1].bind(CLUSTER.LEVEL_CONTROL.NAME, new LevelControlBoundCluster({
-                onMove: (value:any)=>{this.log("i'm running really fast.....")},
+                onMove: this.onControlLevelChangeReport.bind(this),
                 moveWithOnOff:this.onControlLevelChangeReport.bind(this),
                 stepWithOnOff:this.onControlLevelChangeReport.bind(this),
                 step:this.onControlLevelChangeReport.bind(this)
