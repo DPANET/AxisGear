@@ -3,17 +3,17 @@
 import Homey = require('homey');
 const { ZigBeeDevice } = require('homey-zigbeedriver');
 const { ZCLNode,CLUSTER,BoundCluster} = require('zigbee-clusters');
-
+const LevelControlBoundCluster = require('../../lib/LevelControlBoundCluster');
 const maxMoveLevel = 254;
 const minMoveLevel = 0;
 class AxisDevice extends ZigBeeDevice {
 
    public async onNodeInit({zclNode}) {
         // enable debugging
-        //this.enableDebug();
-        //  this.printNode();
+        this.enableDebug();
+          this.printNode();
         // this.log('Zigbee Added');
-
+        this.log("I'm being added.......");
         //map onoff capability
         try {
 
@@ -37,16 +37,17 @@ class AxisDevice extends ZigBeeDevice {
 
                     reportParser: (value:any) => value / maxMoveLevel
                 });
-
+            this.log("On/Off Capability is added.....")
             //map battery capability        
             this.registerCapability('measure_battery',CLUSTER.POWER_CONFIGURATION,
                 {
                     get: 'batteryPercentageRemaining',
                     report: 'batteryPercentageRemaining',
                     reportParser: (value:any) => Math.round(value / 2),
-                    endpoint:0
+     
 
                 });
+                this.log("Battery Capability is added.....")
 
             //map dim capability        
             this.registerCapability('dim', CLUSTER.LEVEL_CONTROL,
@@ -72,6 +73,7 @@ class AxisDevice extends ZigBeeDevice {
         } catch (err) {
             this.error('failed to register mapping registerCapability ', err);
         }
+        this.log("Dim Capability is added.....")
 
         // this.registerAttrReportListener(
         //     'genLevelCtrl', // Cluster
@@ -96,24 +98,27 @@ class AxisDevice extends ZigBeeDevice {
                 maxInterval: 3600,
                 minChange:0
             }]);
-       
-        if (this.hasCapability('measure_battery')) {
-            this.registerAttrReportListener(
-                'genPowerCfg', // Cluster
-                'batteryPercentageRemaining', // Attr
-                1, // Min report interval in seconds (must be greater than 1)
-                3600, // Max report interval in seconds (must be zero or greater than 60 and greater than min report interval)
-                0, // Report change value, if value changed more than this value send a report
-                this.onPowerCfgBatteryPercentageRemainingReport.bind(this),0) // Callback with value
-                .then(() => {
-                    // Registering attr reporting succeeded
-                    this.log('registered attr report listener');
-                })
-                .catch((err:Error) => {
-                    // Registering attr reporting failed
-                    this.error('failed to register attr report listener', err);
-                });
-        }
+            zclNode.endpoints[1].bind(CLUSTER.LEVEL_CONTROL.NAME, new LevelControlBoundCluster({
+                onMove: this.onControlLevelChangeReport.bind(this),
+
+              }));
+        // if (this.hasCapability('measure_battery')) {
+        //     this.registerAttrReportListener(
+        //         'genPowerCfg', // Cluster
+        //         'batteryPercentageRemaining', // Attr
+        //         1, // Min report interval in seconds (must be greater than 1)
+        //         3600, // Max report interval in seconds (must be zero or greater than 60 and greater than min report interval)
+        //         0, // Report change value, if value changed more than this value send a report
+        //         this.onPowerCfgBatteryPercentageRemainingReport.bind(this),0) // Callback with value
+        //         .then(() => {
+        //             // Registering attr reporting succeeded
+        //             this.log('registered attr report listener');
+        //         })
+        //         .catch((err:Error) => {
+        //             // Registering attr reporting failed
+        //             this.error('failed to register attr report listener', err);
+        //         });
+        // }
         //initialize Homey Events
 
         // Register toggle curtain flow card
@@ -220,50 +225,6 @@ class AxisDevice extends ZigBeeDevice {
 
 }
 
-class LevelControlBoundCluster extends BoundCluster {
 
-    constructor({ onMove }) {
-        super();
-        this._onMove = onMove;
-      }
-    
-      // This function name is directly derived from the `move`
-      // command in `zigbee-clusters/lib/clusters/levelControl.js`
-      // the payload received is the payload specified in
-      // `LevelControlCluster.COMMANDS.move.args`
-     async move(payload:any) {
-        await this.onControlLevelChangeReport(payload);
-      }
-
-      async  onControlLevelChangeReport(value: any) {
-        let level = (value / maxMoveLevel);
-        this.log("Sent Value:" + level);
-        this.log("Current Dim:" + this.getCapabilityValue('dim'));
-        //   this.log("Current On/Off:"+ this.getCapabilityValue('onoff'));
-        //   if (this.getCapabilityValue('dim') !== level)
-        try {
-            if (this.getCapabilityValue('dim') !== level)
-            await this.setCapabilityValue('dim', level);
-            // .then(() => { })
-            // .catch(err => {
-            //     // Registering attr reporting failed
-            //     this.error('failed to set dim setCapabilityValue', err);
-            // });
-
-            // update onOff capability
-          if (this.getCapabilityValue('onoff') !== (level) > 0) 
-            await this.setCapabilityValue('onoff', (level) > 0);
-            // .then(() => { })
-            // .catch(err => {
-            //     // Registering attr reporting failed
-            //     this.error('failed to set on/off setCapabilityValue', err);
-            // });
-        }
-        catch (err) {
-            this.error('failed to set control change setCapabilityValue', err);
-
-        }
-    }
-}
 module.exports = AxisDevice;
-module.exports = LevelControlBoundCluster;
+//module.exports = LevelControlBoundCluster;

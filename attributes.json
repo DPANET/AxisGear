@@ -1,0 +1,404 @@
+
+  "ids": {
+    "modelId": "Gear",
+    "manufacturerName": "AXIS"
+  },
+  "endpoints": {
+    "endpointDescriptors": [
+      {
+        "endpointId": 1,
+        "applicationProfileId": 260,
+        "applicationDeviceId": 514,
+        "applicationDeviceVersion": 0,
+        "_reserved1": 1,
+        "inputClusters": [
+          0,
+          3,
+          6,
+          8,
+          258,
+          32,
+          1
+        ],
+        "outputClusters": [
+          25
+        ]
+      },
+      {
+        "endpointId": 196,
+        "applicationProfileId": 49757,
+        "applicationDeviceId": 514,
+        "applicationDeviceVersion": 0,
+        "_reserved1": 1,
+        "inputClusters": [
+          1
+        ],
+        "outputClusters": [
+          1
+        ]
+      }
+    ],
+    "endpoints": {
+      "1": {
+        "clusters": {
+          "basic": {
+            "attributes": [
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 0,
+                "name": "zclVersion",
+                "value": 1
+              },
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 1,
+                "name": "appVersion",
+                "value": 140
+              },
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 2,
+                "name": "stackVersion",
+                "value": 2
+              },
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 3,
+                "name": "hwVersion",
+                "value": 0
+              },
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 4,
+                "name": "manufacturerName",
+                "value": "AXIS"
+              },
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 5,
+                "name": "modelId",
+                "value": "Gear"
+              },
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 7,
+                "name": "powerSource",
+                "value": "battery"
+              },
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 16384,
+                "name": "swBuildId",
+                "value": "100-5.3.5.1122"
+              }
+            ],
+            "commandsGenerated": [],
+            "commandsReceived": [
+              "factoryReset"
+            ]
+          },
+          "identify": {
+            "attributes": [
+              {
+                "acl": [
+                  "readable",
+                  "writable"
+                ],
+                "id": 0
+              }
+            ],
+            "commandsGenerated": [
+              0
+            ],
+            "commandsReceived": [
+              0,
+              1
+            ]
+          },
+          "onOff": {
+            "attributes": [
+              {
+                "acl": [
+                  "readable",
+                  "reportable"
+                ],
+                "id": 0,
+                "name": "onOff",
+                "value": true,
+                "reportingConfiguration": {
+                  "status": "NOT_FOUND",
+                  "direction": "reported"
+                }
+              }
+            ],
+            "commandsGenerated": [],
+            "commandsReceived": [
+              "setOff",
+              "setOn",
+              "toggle"
+            ]
+          },
+          "levelControl": {
+            "attributes": [
+              {
+                "acl": [
+                  "readable",
+                  "reportable"
+                ],
+                "id": 0,
+                "name": "currentLevel",
+                "value": 3,
+                "reportingConfiguration": {
+                  "status": "NOT_FOUND",
+                  "direction": "reported"
+                }
+              }
+            ],
+            "commandsGenerated": [],
+            "commandsReceived": [
+              "moveToLevel",
+              "move",
+              "step",
+              "stop",
+              "moveToLevelWithOnOff",
+              "moveWithOnOff",
+              "stepWithOnOff",
+              "stopWithOnOff",
+              160,
+              175
+            ]
+          },
+          "windowCovering": {
+            "attributes": [
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 0,
+                "name": "windowCoveringType",
+                "value": "rollershade"
+              },
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 7,
+                "name": "configStatus",
+                "value": {
+                  "type": "Buffer",
+                  "data": [
+                    123
+                  ]
+                }
+              },
+              {
+                "acl": [
+                  "readable",
+                  "reportable"
+                ],
+                "id": 8,
+                "name": "currentPositionLiftPercentage",
+                "value": 99,
+                "reportingConfiguration": {
+                  "status": "NOT_FOUND",
+                  "direction": "reported"
+                }
+              },
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 16
+              },
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 17
+              },
+              {
+                "acl": [
+                  "readable",
+                  "writable"
+                ],
+                "id": 23
+              },
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 65533,
+                "name": "clusterRevision",
+                "value": 2
+              }
+            ],
+            "commandsGenerated": [],
+            "commandsReceived": []
+          },
+          "pollControl": {
+            "attributes": [
+              {
+                "acl": [
+                  "readable",
+                  "writable",
+                  "reportable"
+                ],
+                "id": 0
+              },
+              {
+                "acl": [
+                  "readable",
+                  "reportable"
+                ],
+                "id": 1
+              },
+              {
+                "acl": [
+                  "readable",
+                  "reportable"
+                ],
+                "id": 2
+              },
+              {
+                "acl": [
+                  "readable",
+                  "writable",
+                  "reportable"
+                ],
+                "id": 3
+              },
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 4
+              },
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 5
+              },
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 6
+              }
+            ],
+            "commandsGenerated": [
+              0
+            ],
+            "commandsReceived": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          "powerConfiguration": {
+            "attributes": [
+              {
+                "acl": [
+                  "readable"
+                ],
+                "id": 0
+              },
+              {
+                "acl": [
+                  "readable",
+                  "reportable"
+                ],
+                "id": 32,
+                "name": "batteryVoltage",
+                "value": 255
+              },
+              {
+                "acl": [
+                  "readable",
+                  "writable"
+                ],
+                "id": 49
+              },
+              {
+                "acl": [
+                  "readable",
+                  "writable"
+                ],
+                "id": 51
+              },
+              {
+                "acl": [
+                  "readable",
+                  "writable"
+                ],
+                "id": 53
+              },
+              {
+                "acl": [
+                  "readable",
+                  "writable"
+                ],
+                "id": 54
+              },
+              {
+                "acl": [
+                  "readable",
+                  "writable"
+                ],
+                "id": 55
+              },
+              {
+                "acl": [
+                  "readable",
+                  "writable"
+                ],
+                "id": 56
+              },
+              {
+                "acl": [
+                  "readable",
+                  "writable"
+                ],
+                "id": 57
+              },
+              {
+                "acl": [
+                  "readable",
+                  "reportable"
+                ],
+                "id": 62
+              }
+            ],
+            "commandsGenerated": [],
+            "commandsReceived": []
+          }
+        }
+      },
+      "196": {
+        "clusters": {
+          "powerConfiguration": {
+            "attributes": "TIMEOUT",
+            "commandsGenerated": "TIMEOUT",
+            "commandsReceived": "TIMEOUT"
+          }
+        }
+      }
+    }
+  }

@@ -84,8 +84,18 @@
                 "manufacturerName": "AXIS",
                 "manufacturerId": "AXIS",
                 "productId": "Gear",
-                "deviceId": [512,514],
-                "profileId": 260,
+                "endpoints": {
+                    "1": {
+                      "clusters": [
+                        0,
+                        6,
+                        8
+                      ],
+                      "bindings": [
+                       8
+                      ]
+                    }
+                  },
                 "learnmode": {
                     "image": "drivers/axis/assets/learn.svg",
                     "instruction": {
