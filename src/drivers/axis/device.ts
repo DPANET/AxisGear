@@ -40,7 +40,7 @@ class AxisDevice extends ZigBeeDevice {
             //     });
             this.registerCapability('onoff',  CLUSTER.ON_OFF, {
                 // This is often just a string, but can be a function as well
-                 set: (value:any) => (value ? 'setOn' : 'setOff'),
+                set: (value:any) => (value ? 'setOn' : 'setOff'),
                   get: 'onOff',
                   report: 'onOff',
                   setParser:(setValue:any)=> setValue ? 'setOn' : 'setOff',
