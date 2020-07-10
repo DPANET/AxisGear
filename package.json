@@ -10,13 +10,13 @@
   "id": "com.athom.example",
   "sdk": 2,
   "dependencies": {
-    "homey-meshdriver": "^1.2.34"
+    "homey-zigbeedriver": "^1.1.0"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/DPANET/AxisGear.git"
   },
   "devDependencies": {
-    "@types/node": "^12.7.2"
+    "@types/node": "^12.12.48"
   }
 }
