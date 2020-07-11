@@ -93,7 +93,6 @@ class AxisDevice extends ZigBeeDevice {
             this.registerCapability('dim', CLUSTER.LEVEL_CONTROL,
             {
                 get: 'currentLevel',
-                // report: 'currentLevel',
                 set: 'moveToLevel',
                 getOpts:
                 {
@@ -124,7 +123,7 @@ class AxisDevice extends ZigBeeDevice {
             //         reportParser: (value:any) => Math.round(value / 2),
     
             //     });
-            this.registerCapability('alarm_battery', CLUSTER.POWER_CONFIGURATION, {
+            this.registerCapability('measure_battery', CLUSTER.POWER_CONFIGURATION, {
                 getOpts: {
                   getOnStart: true,
                 },
@@ -205,8 +204,10 @@ class AxisDevice extends ZigBeeDevice {
     //     endpointId:1
     //     }
     //   ]);
-      zclNode.endpoints[1].clusters.colorControl.on('attr.currentLevel', this.onControlLevelChangeReport.bind(this));
-      zclNode.endpoints[1].clusters.colorControl.on('attr.batteryPercentageRemaining', this.onPowerCfgBatteryPercentageRemainingReport.bind(this));
+      zclNode.endpoints[1].clusters[CLUSTER.LEVEL_CONTROL.NAME].on('attr.currentLevel', (value:any)=>{this.log("Hi I'm running :"+ value)});
+      zclNode.endpoints[1].clusters[CLUSTER.ON_OFF.NAME].on('attr.onOff', (value:any)=>{this.log("Hi I'm running :"+ value)});
+
+      zclNode.endpoints[1].clusters[CLUSTER.POWER_CONFIGURATION.NAME].on('attr.batteryPercentageRemaining', this.onPowerCfgBatteryPercentageRemainingReport.bind(this));
 
         // if (this.hasCapability('measure_battery')) {
         //     this.registerAttrReportListener(

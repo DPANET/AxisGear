@@ -61,8 +61,7 @@
             "capabilities": [
                 "onoff",
                 "dim",
-                "measure_battery",
-                "alarm_battery"
+                "measure_battery"
             ],
             "images": {
                 "large": "drivers/axis/assets/images/large.png",
