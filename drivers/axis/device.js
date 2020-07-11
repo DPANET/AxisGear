@@ -96,10 +96,7 @@ class AxisDevice extends ZigBeeDevice {
                     pollInterval: 60000
                 },
                 report: 'currentLevel',
-                // setParser: (value:any)=>({
-                //     level: value * maxMoveLevel,
-                //     transtime: value
-                // }),
+                setParser: (value) => (value * maxMoveLevel),
                 reportParser: (value) => value / maxMoveLevel,
                 reportOpts: {
                     configureAttributeReporting: {
@@ -112,13 +109,25 @@ class AxisDevice extends ZigBeeDevice {
                 }
             });
             this.log("On/Off Capability is added.....");
-            //map battery capability        
+            // //map battery capability        
             // this.registerCapability('measure_battery',CLUSTER.POWER_CONFIGURATION,
             //     {
             //         get: 'batteryPercentageRemaining',
             //         report: 'batteryPercentageRemaining',
             //         reportParser: (value:any) => Math.round(value / 2),
             //     });
+            this.registerCapability('alarm_battery', CLUSTER.POWER_CONFIGURATION, {
+                getOpts: {
+                    getOnStart: true,
+                },
+                reportOpts: {
+                    configureAttributeReporting: {
+                        minInterval: 0,
+                        maxInterval: 60000,
+                        minChange: 5,
+                    },
+                },
+            });
             //     this.log("Battery Capability is added.....")
             //map dim capability        
             //     this.registerCapability('dim', CLUSTER.LEVEL_CONTROL,
@@ -167,34 +176,26 @@ class AxisDevice extends ZigBeeDevice {
             //             maxInterval: 3600,
             //             minChange:0
             //         }]);
-            await this.configureAttributeReporting([
-                {
-                    cluster: CLUSTER.LEVEL_CONTROL,
-                    attributeName: "currentLevel",
-                    minInterval: 0,
-                    maxInterval: 3600,
-                    minChange: 0,
-                    endpointId: 1
-                },
-                {
-                    cluster: CLUSTER.ON_OFF,
-                    attributeName: "onOff",
-                    minInterval: 0,
-                    maxInterval: 3600,
-                    minChange: 0,
-                    endpointId: 1
-                }
-            ]);
-            zclNode.endpoints[1].bind(CLUSTER.ON_OFF.NAME, new OnOffBoundCluster({
-                setOn: this.onControlLevelChangeReport.bind(this),
-                setOff: this.onControlLevelChangeReport.bind(this)
-            }));
-            zclNode.endpoints[1].bind(CLUSTER.LEVEL_CONTROL.NAME, new LevelControlBoundCluster({
-                onMove: this.onControlLevelChangeReport.bind(this),
-                moveWithOnOff: this.onControlLevelChangeReport.bind(this),
-                stepWithOnOff: this.onControlLevelChangeReport.bind(this),
-                step: this.onControlLevelChangeReport.bind(this)
-            }));
+            // await this.configureAttributeReporting([
+            //     {
+            //         cluster: CLUSTER.LEVEL_CONTROL,
+            //         attributeName:"currentLevel",
+            //         minInterval: 0, // No minimum reporting interval
+            //         maxInterval: 3600, // Maximally every ~16 hours
+            //         minChange: 0, // Report when value changed by 0,
+            //         endpointId:1
+            //     },
+            //     {
+            //     cluster: CLUSTER.ON_OFF,
+            //     attributeName:"onOff",
+            //     minInterval: 0, // No minimum reporting interval
+            //     maxInterval: 3600, // Maximally every ~16 hours
+            //     minChange: 0, // Report when value changed by 0,
+            //     endpointId:1
+            //     }
+            //   ]);
+            zclNode.endpoints[1].clusters.colorControl.on('attr.currentLevel', this.onControlLevelChangeReport.bind(this));
+            zclNode.endpoints[1].clusters.colorControl.on('attr.batteryPercentageRemaining', this.onPowerCfgBatteryPercentageRemainingReport.bind(this));
             // if (this.hasCapability('measure_battery')) {
             //     this.registerAttrReportListener(
             //         'genPowerCfg', // Cluster
