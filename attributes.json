@@ -140,10 +140,13 @@
                 ],
                 "id": 0,
                 "name": "onOff",
-                "value": true,
+                "value": false,
                 "reportingConfiguration": {
-                  "status": "NOT_FOUND",
-                  "direction": "reported"
+                  "direction": "reported",
+                  "attributeDataType": 16,
+                  "minInterval": 0,
+                  "maxInterval": 3600,
+                  "status": "SUCCESS"
                 }
               }
             ],
@@ -163,10 +166,14 @@
                 ],
                 "id": 0,
                 "name": "currentLevel",
-                "value": 3,
+                "value": 0,
                 "reportingConfiguration": {
-                  "status": "NOT_FOUND",
-                  "direction": "reported"
+                  "direction": "reported",
+                  "attributeDataType": 32,
+                  "minInterval": 1,
+                  "maxInterval": 3600,
+                  "minChange": 0,
+                  "status": "SUCCESS"
                 }
               }
             ],
@@ -214,7 +221,7 @@
                 ],
                 "id": 8,
                 "name": "currentPositionLiftPercentage",
-                "value": 99,
+                "value": 100,
                 "reportingConfiguration": {
                   "status": "NOT_FOUND",
                   "direction": "reported"

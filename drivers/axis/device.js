@@ -13,15 +13,14 @@ class AxisDevice extends ZigBeeDevice {
         // this.enableDebug();
         this.printNode();
         // this.log('Zigbee Added');
-        this.log("I'm being added.......");
-        //map onoff capability
         try {
             this.registerCapability('onoff', CLUSTER.ON_OFF, {
                 // This is often just a string, but can be a function as well
                 set: (value) => (value ? 'setOn' : 'setOff'),
                 get: 'onOff',
                 report: 'onOff',
-                setParser: (setValue) => setValue ? 'setOn' : 'setOff',
+                // setParser:(setValue:any)=> setValue ? 'setOn' : 'setOff',
+                setParser: () => ({}),
                 reportParser: (report) => {
                     if (report && report.onOff === true)
                         return true;
@@ -29,43 +28,18 @@ class AxisDevice extends ZigBeeDevice {
                 },
                 getOpts: {
                     getOnStart: true,
-                    getOnOnline: true,
-                    pollInterval: 60000
+                    getOnOnline: true
                 },
                 reportOpts: {
                     configureAttributeReporting: {
                         attributeName: "onOff",
                         minInterval: 0,
                         maxInterval: 3600,
-                        minChange: 0,
+                        //  minChange: 0, // Report when value changed by 0,
                         endpointId: 1
                     }
                 }
             });
-            // this.registerCapability('onOff', CLUSTER.LEVEL_CONTROL,
-            // {
-            //     get: 'currentLevel',
-            //     set: 'moveToLevel',
-            //     report:'currentLevel',
-            //     getOpts:
-            //     {
-            //         //pollInterval: 3600,
-            //         getOnStart: true,
-            //         getOnOnline: true
-            //     },
-            //    //setParser: (value:any)=>( {level: value * maxMoveLevel} ),
-            //     reportParser: (value:any) => value/ maxMoveLevel,
-            //     reportOpts: {
-            //         configureAttributeReporting: {
-            //          // attributeName:"currentLevel",
-            //           minInterval: 1, // No minimum reporting interval
-            //           maxInterval: 3600, // Maximally every ~16 hours
-            //           minChange: 0, // Report when value changed by 0,
-            //           endpointId:1
-            //         }
-            //         }
-            //      }
-            // );
             this.registerCapability('dim', CLUSTER.LEVEL_CONTROL, {
                 get: 'currentLevel',
                 set: 'moveToLevelWithOnOff',
@@ -75,8 +49,8 @@ class AxisDevice extends ZigBeeDevice {
                     getOnStart: true,
                     getOnOnline: true
                 },
-                //  setParser: (value:any)=>( {level: value * maxMoveLevel} ),
-                // reportParser: (value:any) => value/ maxMoveLevel,
+                setParser: (value) => ({ level: value * maxMoveLevel }),
+                reportParser: (value) => value / maxMoveLevel,
                 reportOpts: {
                     configureAttributeReporting: {
                         attributeName: "currentLevel",
@@ -87,8 +61,6 @@ class AxisDevice extends ZigBeeDevice {
                     }
                 }
             });
-            // This maps the `dim` capability to the "levelControl" cluster
-            this.log("On/Off Capability is added.....");
             this.registerCapability('measure_battery', CLUSTER.POWER_CONFIGURATION, {
                 get: 'batteryPercentageRemaining',
                 report: 'batteryPercentageRemaining',
@@ -99,9 +71,11 @@ class AxisDevice extends ZigBeeDevice {
                 },
                 reportOpts: {
                     configureAttributeReporting: {
+                        attributeName: "batteryPercentageRemaining",
                         minInterval: 0,
                         maxInterval: 60000,
-                        minChange: 5,
+                        minChange: 0,
+                        endpointId: 1
                     },
                 },
             });
@@ -123,23 +97,11 @@ class AxisDevice extends ZigBeeDevice {
             //     }
             // ]);
             //zclNode.endpoints[1].clusters[CLUSTER.LEVEL_CONTROL.NAME].on('attr.currentLevel', this.onControlLevelChangeReport.bind(this));
-            //    zclNode.endpoints[1].clusters[CLUSTER.ON_OFF.NAME].on('attr.onOff', this.onSwitchChangeReport.bind(this));
+            zclNode.endpoints[1].clusters[CLUSTER.ON_OFF.NAME].on('attr.onOff', this.onSwitchChangeReport.bind(this));
+            zclNode.endpoints[1].clusters[CLUSTER.POWER_CONFIGURATION.NAME].on('attr.batteryPercentageRemaining', this.onPowerCfgBatteryPercentageRemainingReport.bind(this));
             zclNode.endpoints[1].bind(CLUSTER.LEVEL_CONTROL.NAME, new LevelControlBoundCluster({
-                onMoveWithOnOff: this.onControlLevelChangeReport.bind(this),
-                onMove: this.onControlLevelChangeReport.bind(this)
+                onMoveWithOnOff: this.onControlLevelChangeReport.bind(this)
             }));
-            // await this.configureAttributeReporting([
-            //     {
-            //         cluster: CLUSTER.LEVEL_CONTROL,
-            //         attributeName:"currentLevel",
-            //         minInterval: 0, // No minimum reporting interval
-            //         maxInterval: 3600, // Maximally every ~16 hours
-            //         minChange: 0, // Report when value changed by 0,
-            //         endpointId:1
-            //     }
-            //   ]);
-            //zclNode.endpoints[1].clusters[CLUSTER.ON_OFF.NAME].on('attr.onOff', (value:any)=>this.onControlLevelChangeReport.bind(this));
-            //  zclNode.endpoints[1].clusters[CLUSTER.POWER_CONFIGURATION.NAME].on('attr.batteryPercentageRemaining', this.onPowerCfgBatteryPercentageRemainingReport.bind(this));
             this.initEvents();
         }
         catch (err) {
@@ -160,24 +122,44 @@ class AxisDevice extends ZigBeeDevice {
             });
         });
     }
-    async OnPowerChangeReport(value) {
-        this.log("Current On/Off:" + this.getCapabilityValue('onoff'));
-        try {
-            await this.setCapabilityValue('onoff', value);
-        }
-        catch (err) {
-            this.error('failed to set Onoff setCapabilityValue', err);
-        }
-    }
     async onSwitchChangeReport(value) {
-        this.log("Current On/Off:" + this.getCapabilityValue('onoff'));
+        this.log("Current On/Off:" + await this.getClusterCapabilityValue('onoff', CLUSTER.ON_OFF));
+        this.log("Value Recieved: " + value);
         try {
             //  await this.setCapabilityValue('onoff', value);
-            await this.setCapabilityValue('dim', value ? 1 : 0);
+            await this.setClusterCapabilityValue('dim', CLUSTER.LEVEL_CONTROL, (value === 1) ? 1 : 0);
             this.log("Current Dim:" + this.getCapabilityValue('dim'));
         }
         catch (err) {
             this.error('failed to set Dim setCapabilityValue', err);
+        }
+    }
+    async onPowerCfgBatteryPercentageRemainingReport(value) {
+        let batteryValue = Math.round(value / 2);
+        this.log('onPowerCfgBatteryPercentageRemainingReport ', batteryValue);
+        try {
+            await this.setCapabilityValue('measure_battery', batteryValue);
+        }
+        catch (err) {
+            this.error('failed to set battery setCapabilityValue ' + batteryValue, err);
+        }
+    }
+    async toggleBlind(device) {
+        try {
+            let state = !device.getCapabilityValue('onoff');
+            // this.log(state);
+            let result = true;
+            // Get ZigBeeNode instance from ManagerZigBee
+            let node = await this.homey.zigbee.getNode(this);
+            // Create ZCLNode instance
+            let zclNode = new ZCLNode(node);
+            await zclNode.endpoints[1].clusters.onOff.toggle();
+            await this.setCapabilityValue('onoff', state);
+            return result;
+        }
+        catch (err) {
+            this.error('failed to set on/off setCapabilityValue based on action', err);
+            return false;
         }
     }
     async onControlLevelChangeReport(value) {
@@ -207,43 +189,6 @@ class AxisDevice extends ZigBeeDevice {
         catch (err) {
             this.error('failed to set control change setCapabilityValue', err);
         }
-    }
-    onPowerCfgBatteryPercentageRemainingReport(value) {
-        let batteryValue = Math.round(value / 2);
-        //    this.log('onPowerCfgBatteryPercentageRemainingReport ',batteryValue );
-        this.setCapabilityValue('measure_battery', batteryValue)
-            .then(() => { })
-            .catch((err) => {
-            // Registering attr reporting failed
-            this.error('failed to set battery setCapabilityValue', err);
-        });
-    }
-    async toggleBlind(device) {
-        let state = !device.getCapabilityValue('onoff');
-        // this.log(state);
-        let result = true;
-        // Get ZigBeeNode instance from ManagerZigBee
-        let node = await this.homey.zigbee.getNode(this);
-        // Create ZCLNode instance
-        let zclNode = new ZCLNode(node);
-        return new Promise((resolve, reject) => {
-            zclNode.endpoints[0].clusters.onOff.toggle()
-                .then(() => {
-                this.setCapabilityValue('onoff', state)
-                    .then(() => {
-                    // this.log('success set capablities');
-                    resolve(result);
-                })
-                    .catch((err) => {
-                    this.error('failed to toggle ', err);
-                    resolve(!result);
-                });
-            })
-                .catch((err) => {
-                this.error('failed to set on/off setCapabilityValue based on action', err);
-                resolve(!result);
-            });
-        });
     }
 }
 module.exports = AxisDevice;
