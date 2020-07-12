@@ -19,6 +19,14 @@
             "zigbee"
         ]
     },
+    "energy": {
+        "measure_power": {
+            "approximated": true
+          },
+        "batteries": [
+          "INTERNAL"
+        ]
+      },
     "images": {
         "large": "assets/images/large.jpg",
         "small": "assets/images/small.jpg"

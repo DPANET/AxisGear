@@ -108,7 +108,7 @@ class AxisDevice extends ZigBeeDevice {
             //     }
             // ]);
             //zclNode.endpoints[1].clusters[CLUSTER.LEVEL_CONTROL.NAME].on('attr.currentLevel', this.onControlLevelChangeReport.bind(this));
-            zclNode.endpoints[1].clusters[CLUSTER.ON_OFF.NAME].on('attr.onOff', this.onSwitchChangeReport.bind(this));
+            zclNode.endpoints[1].clusters[CLUSTER.ON_OFF.NAME].on('attr.onOff', this.onOnOffChangeReport.bind(this));
             zclNode.endpoints[1].clusters[CLUSTER.POWER_CONFIGURATION.NAME].on('attr.batteryPercentageRemaining', this.onPowerCfgBatteryPercentageRemainingReport.bind(this));
             zclNode.endpoints[1].bind(CLUSTER.LEVEL_CONTROL.NAME, new LevelControlBoundCluster({
                 onMoveWithOnOff: this.onControlLevelChangeReport.bind(this)
@@ -136,7 +136,7 @@ class AxisDevice extends ZigBeeDevice {
 
             });
     }
-    async onSwitchChangeReport(value: any) {
+    async onOnOffChangeReport(value: any) {
         this.log("Current On/Off:" + await this.getClusterCapabilityValue('onoff', CLUSTER.ON_OFF));
         this.log("Value Recieved: " + value);
         try {
