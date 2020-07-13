@@ -1,5 +1,7 @@
 'use strict';
 
+import { watchFile } from "fs";
+
 const { ZigBeeDevice } = require('homey-zigbeedriver');
 const { ZCLNode, CLUSTER, BoundCluster } = require('zigbee-clusters');
 const LevelControlBoundCluster = require('../../lib/LevelControlBoundCluster');
@@ -18,35 +20,36 @@ class AxisDevice extends ZigBeeDevice {
        
         try {
 
-            this.registerCapability('onoff', CLUSTER.ON_OFF, {
-                // This is often just a string, but can be a function as well
-                set: (setValue:any)=> setValue ? 'setOn' : 'setOff',
-                get: 'onOff',
-                report: 'onOff',
-                setParser:(setValue:any)=> setValue ? 'setOn' : 'setOff',
-                //setParser: () => ({}),
-                reportParser: (report: any) => {
-                    if (report && report.onOff === true) return true;
-                    return false
-                },
-                getOpts:
-                {
-                   getOnStart: true,
-                   getOnOnline: true
+            // this.registerCapability('onoff', CLUSTER.ON_OFF, {
+            //     // This is often just a string, but can be a function as well
+            //     set: (setValue:any)=> setValue ? 'setOn' : 'setOff',
+            //     get: 'onOff',
+            //     report: 'onOff',
+            //     setParser:(setValue:any)=> setValue ? 'setOn' : 'setOff',
+            //     //setParser: () => ({}),
+            //     reportParser: (report: any) => {
+            //         if (report && report.onOff === true) return true;
+            //         return false
+            //     },
+            //     getOpts:
+            //     {
+            //        getOnStart: true,
+            //        getOnOnline: true
 
-                }
-                ,
-                reportOpts: {
-                    configureAttributeReporting: {
-                        attributeName: "onOff",
-                        minInterval: 0, // No minimum reporting interval
-                        maxInterval: 600, // Maximally every ~16 hours
-                        minChange: 0, // Report when value changed by 0,
-                        endpointId: 1
-                    }
-                }
-            }
-            );
+            //     }
+            //     ,
+            //     reportOpts: {
+            //         configureAttributeReporting: {
+            //             attributeName: "onOff",
+            //             minInterval: 0, // No minimum reporting interval
+            //             maxInterval: 3600, // Maximally every ~16 hours
+            //             minChange: 0, // Report when value changed by 0,
+            //             endpointId: 1
+            //         }
+            //     }
+            // }
+            // );
+            this.registerCapabilityListener('onoff', this.controlOnOffCluster.bind(this));
             this.registerCapability('dim', CLUSTER.LEVEL_CONTROL,
                 {
                     get: 'currentLevel',
@@ -64,7 +67,7 @@ class AxisDevice extends ZigBeeDevice {
                     reportOpts: {
                         configureAttributeReporting: {
                             attributeName: "currentLevel",
-                            minInterval: 1, // No minimum reporting interval
+                            minInterval: 0, // No minimum reporting interval
                             maxInterval: 3600, // Maximally every ~16 hours
                             minChange: 0, // Report when value changed by 0,
                             endpointId: 1
@@ -108,12 +111,12 @@ class AxisDevice extends ZigBeeDevice {
             //     minChange:0
             //     }
             // ]);
-            zclNode.endpoints[1].clusters[CLUSTER.LEVEL_CONTROL.NAME].on('attr.currentLevel', this.onControlLevelChangeReport.bind(this));
-            zclNode.endpoints[1].clusters[CLUSTER.ON_OFF.NAME].on('attr.onOff', this.onOnOffChangeReport.bind(this));
+           // zclNode.endpoints[1].clusters[CLUSTER.LEVEL_CONTROL.NAME].on('attr.currentLevel', this.onControlLevelChangeReport.bind(this));
+            //zclNode.endpoints[1].clusters[CLUSTER.ON_OFF.NAME].on('attr.onOff', this.onOnOffChangeReport.bind(this));
             zclNode.endpoints[1].clusters[CLUSTER.POWER_CONFIGURATION.NAME].on('attr.batteryPercentageRemaining', this.onPowerCfgBatteryPercentageRemainingReport.bind(this));
-            zclNode.endpoints[1].bind(CLUSTER.LEVEL_CONTROL.NAME, new LevelControlBoundCluster({
-                onMoveWithOnOff: this.onControlLevelChangeReport.bind(this)
-            }));
+            // zclNode.endpoints[1].bind(CLUSTER.LEVEL_CONTROL.NAME, new LevelControlBoundCluster({
+            //     onMoveWithOnOff: this.onControlLevelChangeReport.bind(this)
+            // }));
             this.initEvents();
         }
         catch (err) {
@@ -137,22 +140,35 @@ class AxisDevice extends ZigBeeDevice {
 
             });
     }
-    async onOnOffChangeReport(value: any) {
-        let current:any = await this.getClusterCapabilityValue('onoff', CLUSTER.ON_OFF);
-        this.log("Current On/Off:" + current);
+    async controlOnOffCluster(value: boolean): Promise<any> {
+        //let current:any = await this.getClusterCapabilityValue('onoff', CLUSTER.ON_OFF);
+        //this.log("Current On/Off:" + current);
         this.log("Value Recieved: " + value);
+        let dim:number= 0;
         try {
             //  await this.setCapabilityValue('onoff', value);
             //if(current === value)
-            await this.setClusterCapabilityValue('dim', CLUSTER.LEVEL_CONTROL, (value) ? 1 : 0);
+            let node = await this.homey.zigbee.getNode(this);
+
+            // Create ZCLNode instance
+            let zclNode = new ZCLNode(node);
+
+          dim=  await  zclNode.endpoints[1].clusters.dim.moveToLevelWithOnOff({level:(value) ? 1 : 0});
+          await this.wait(1000);
+          if (dim === 0) 
+            await this.setCapabilityValue('onoff', false);
+          else if (this.getCapabilityValue('onoff') === false && dim > 0)
+            await this.setCapabilityValue('onoff', true);
+            //await this.setClusterCapabilityValue('dim', CLUSTER.LEVEL_CONTROL, (value) ? 1 : 0);
             this.log("Current Dim:" + this.getCapabilityValue('dim'));
             this.log("Current Dim:" + this.getCapabilityValue('onoff'));
             //await this.setCapabilityValue('onoff', value);
         }
         catch (err) {
-            this.error('failed to set Dim setCapabilityValue', err);
-
+            this.error('failed to set On/Off setCapabilityValue', err);
+            return false;
         }
+        return true;
     }
     async onPowerCfgBatteryPercentageRemainingReport(value: any) {
         let batteryValue = Math.round(value / 2);
@@ -170,16 +186,17 @@ class AxisDevice extends ZigBeeDevice {
     async toggleBlind(device: any) {
         try{
             let state = !device.getCapabilityValue('onoff');
+           let result=await this.controlOnOffCluster(state);
             // this.log(state);
-            let result = true;
-            // Get ZigBeeNode instance from ManagerZigBee
-            let node = await this.homey.zigbee.getNode(this);
+           // let result = true;
+            // // Get ZigBeeNode instance from ManagerZigBee
+            // let node = await this.homey.zigbee.getNode(this);
+ 
+            // // Create ZCLNode instance
+            // let zclNode = new ZCLNode(node);
 
-            // Create ZCLNode instance
-            let zclNode = new ZCLNode(node);
-
-            await  zclNode.endpoints[1].clusters.onOff.toggle();
-            await  this.setCapabilityValue('onoff', state);
+            // await  zclNode.endpoints[1].clusters.onOff.toggle();
+            // await  this.setCapabilityValue('onoff', state);
             return result;
         }
         catch(err)
@@ -220,6 +237,10 @@ class AxisDevice extends ZigBeeDevice {
 
         }
     }
+    async wait(timeout:number) {
+        if (typeof timeout !== 'number') throw new TypeError('expected_timeout_number');
+        return new Promise(resolve => setTimeout(resolve, timeout));
+      }
 }
 
 
