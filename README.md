@@ -10,6 +10,8 @@ Note: as of current firmware, battery reporting is different when connected to A
 * English
 
 ## Change Log:
+### v 2.0.0
+* Upgraded the app to support SDK 3.0
 ### v 1.3.0
 * Added support for new Axis firmware update
 * optimized app size

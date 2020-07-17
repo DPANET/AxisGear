@@ -1,6 +1,6 @@
 {
   "name": "@dpanet/axis-app",
-  "version": "1.4.2",
+  "version": "2.0.0",
   "description": "HomeyApp",
   "main": "app.js",
   "author": {
