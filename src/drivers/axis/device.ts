@@ -99,7 +99,7 @@ class AxisDevice extends ZigBeeDevice {
             //  zclNode.endpoints[1].bind(CLUSTER.LEVEL_CONTROL.NAME, new LevelControlBoundCluster({
             //      onMoveWithOnOff: this.onControlLevelChangeReport.bind(this)
             //  }));
-            this.initEvents();
+          //  this.initEvents();
         }
         catch (err) {
             this.log(err);

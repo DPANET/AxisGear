@@ -42,23 +42,6 @@
   "bugs": {
     "url": "https://github.com/DPANET/AxisGear/issues"
   },
-  "flow": {
-    "actions": [
-      {
-        "id": "toggle_blind_action",
-        "title": {
-          "en": "Toggle curtain on or off "
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "my_device",
-            "filter": "driver_id=axis"
-          }
-        ]
-      }
-    ]
-  },
   "drivers": [
     {
       "id": "axis",
