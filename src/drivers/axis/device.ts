@@ -24,7 +24,7 @@ class AxisDevice extends ZigBeeDevice {
                 set: 'moveToLevelWithOnOff',
                 get: 'currentLevel',
                 report: 'currentLevel',
-                setParser: (value: any) => ({ level: (value===1)? 0:(value * maxMoveLevel) }),
+                setParser: (value: any) => ({ level: (value * maxMoveLevel) }),
                 reportParser: (report: any) =>(report === 0 ) ? false : true,
                 getOpts:
                 {
@@ -59,8 +59,9 @@ class AxisDevice extends ZigBeeDevice {
                         getOnOnline: true
 
                     },
-                   setParser: (value: any) => ({ level: (value===1)? 0:(value * maxMoveLevel) }),
-                    reportParser: (value: any) => (value===1)? 0:(value / maxMoveLevel),
+                   setParser: (value: any) => ({ level: (value * maxMoveLevel) }),
+                    reportParser: (value: any) => (value===1)? 0:(value / maxMoveLevel)
+                    ,
                     reportOpts: {
                         configureAttributeReporting: {
                             attributeName: "currentLevel",
