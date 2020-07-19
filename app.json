@@ -1,6 +1,6 @@
 {
   "id": "com.helloaxis.axisapp",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#2698DD",
@@ -43,9 +43,8 @@
     "url": "https://github.com/DPANET/AxisGear/issues"
   },
   "source": "https://github.com/DPANET/AxisGear",
-  "homepage":"https://homey.app/en-us/app/com.helloaxis.axisapp/Axis-Gear/",
+  "homepage": "https://homey.app/en-us/app/com.helloaxis.axisapp/Axis-Gear/",
   "support": "mailto:dpanet@hotmail.com",
-
   "drivers": [
     {
       "id": "axis",
